@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>景宇飞 · 个人简历</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --card: rgba(16, 24, 36, 0.78);
+      --card-solid: #111927;
+      --text: #f2f5f9;
+      --muted: #a8b4c4;
+      --accent: #60a5fa;
+      --accent-2: #34d399;
+      --radius: 18px;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .pages {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .page {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bg-video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .page::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: linear-gradient(180deg, rgba(8, 12, 20, 0.30) 0%, rgba(8, 12, 20, 0.42) 100%);
+      pointer-events: none;
+    }
+
+    .overlay {
+      position: relative;
+      z-index: 10;
+      width: min(980px, 92vw);
+      max-height: 86vh;
+      padding: 24px 30px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 文字直接悬浮于视频之上，仅以极淡的文字阴影保证可读 */
+    .overlay,
+    .overlay * {
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .scrollable {
+      overflow-y: auto;
+      padding-right: 10px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.2) transparent;
+    }
+    .scrollable::-webkit-scrollbar { width: 6px; }
+    .scrollable::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 6px; }
+
+    h1 {
+      font-size: clamp(32px, 5vw, 52px);
+      letter-spacing: 2px;
+      margin-bottom: 4px;
+      color: #ffffff;
+      text-shadow: 0 2px 14px rgba(0, 0, 0, 0.78), 0 0 2px rgba(0, 0, 0, 0.65);
+    }
+
+    .subtitle {
+      color: var(--accent);
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+    }
+
+    .contact {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 24px;
+      color: var(--accent);
+      font-size: 14px;
+      margin-bottom: 18px;
+    }
+
+    .contact span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .section {
+      margin-top: 18px;
+    }
+
+    .section-title {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--accent-2);
+      margin-bottom: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding-bottom: 6px;
+    }
+
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px 22px;
+      font-size: 14px;
+      line-height: 1.65;
+      color: #d7e2f0;
+    }
+
+    .job-card {
+      border-left: 3px solid var(--accent);
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 10px;
+    }
+
+    .job-card h3 {
+      font-size: 15px;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .job-card .date {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .job-card ul {
+      list-style: none;
+      font-size: 13px;
+      color: #c9d6e8;
+      line-height: 1.7;
+    }
+
+    .job-card li::before {
+      content: "• ";
+      color: var(--accent);
+    }
+
+    .awards {
+      font-size: 13px;
+      color: #c9d6e8;
+      line-height: 1.8;
+    }
+
+    /* 获奖情况：横向可拖拽滑动的图片轮播 */
+    .cert-carousel {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      -webkit-overflow-scrolling: touch;
+      cursor: grab;
+    }
+
+    .cert-carousel.is-dragging { cursor: grabbing; }
+
+    .cert-track {
+      display: flex;
+      gap: 18px;
+      padding: 4px 2px 10px;
+      scroll-behavior: auto;
+      will-change: transform;
+    }
+
+    .cert-slide {
+      flex: 0 0 auto;
+      width: 320px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cert-slide img {
+      display: block;
+      width: 100%;
+      max-height: 220px;
+      object-fit: contain;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      user-select: none;
+      -webkit-user-drag: none;
+      pointer-events: none;
+    }
+
+    .cert-name {
+      font-size: 13px;
+      color: #dbeafe;
+      text-align: center;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
+      letter-spacing: 0.5px;
+    }
+
+    .cert-hint {
+      margin-top: 6px;
+      text-align: center;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.55);
+      letter-spacing: 1px;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+      color: rgba(255,255,255,0.7);
+      font-size: 13px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+      animation: bounce 2s infinite;
+      pointer-events: none;
+    }
+
+    .scroll-hint::after {
+      content: "⌄";
+      font-size: 22px;
+      line-height: 0.6;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(6px); }
+    }
+
+    /* Page 2 */
+    #page2 .overlay {
+      max-width: 780px;
+      padding: 28px 32px;
+    }
+
+    #page2 h2 {
+      font-size: 28px;
+      margin-bottom: 16px;
+      color: #fff;
+    }
+
+    .project-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding-right: 6px;
+    }
+
+    .project-item {
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      transition: transform 0.2s;
+    }
+
+    .project-item:hover {
+      transform: translateY(-2px);
+    }
+
+    .project-num {
+      flex: 0 0 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      color: #052234;
+    }
+
+    .project-title {
+      font-size: 15px;
+      line-height: 1.55;
+      color: #f2f8ff;
+      padding-top: 4px;
+    }
+
+    .nav-dots {
+      position: fixed;
+      right: 22px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 30;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .nav-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.3);
+      border: 2px solid rgba(255,255,255,0.2);
+      cursor: pointer;
+      transition: 0.25s;
+    }
+
+    .nav-dot.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      transform: scale(1.15);
+    }
+
+    .back-btn, .next-btn {
+      position: absolute;
+      z-index: 20;
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 24px;
+      padding: 10px 18px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: 0.2s;
+      backdrop-filter: blur(8px);
+    }
+
+    .back-btn:hover, .next-btn:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    .next-btn {
+      bottom: 22px;
+      right: 22px;
+    }
+
+    .back-btn {
+      top: 22px;
+      left: 22px;
+    }
+
+    .instruction {
+      position: absolute;
+      top: 60px;
+      right: 22px;
+      z-index: 20;
+      color: rgba(255,255,255,0.7);
+      font-size: 12px;
+      background: rgba(0,0,0,0.35);
+      padding: 6px 12px;
+      border-radius: 20px;
+      pointer-events: none;
+    }
+
+    /* 顶部轻薄透明全局导航栏 */
+    .topnav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 52px;
+      z-index: 40;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 0 22px;
+      background: linear-gradient(180deg, rgba(6, 10, 18, 0.55), rgba(6, 10, 18, 0.10));
+      -webkit-backdrop-filter: blur(6px);
+      backdrop-filter: blur(6px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .topnav .brand {
+      font-weight: 700;
+      color: #fff;
+      font-size: 15px;
+      letter-spacing: 1px;
+      white-space: nowrap;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+    }
+
+    .topnav .menu {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .topnav .menu a {
+      color: rgba(255, 255, 255, 0.82);
+      text-decoration: none;
+      font-size: 13.5px;
+      padding: 7px 14px;
+      border-radius: 18px;
+      cursor: pointer;
+      transition: 0.2s;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+    }
+
+    .topnav .menu a:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+    }
+
+    .topnav .dl-btn {
+      margin-left: auto;
+      background: rgba(96, 165, 250, 0.18);
+      border: 1px solid rgba(96, 165, 250, 0.5);
+      color: #dbeafe;
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: 0.2s;
+      white-space: nowrap;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+    }
+
+    .topnav .dl-btn:hover {
+      background: rgba(96, 165, 250, 0.32);
+      color: #fff;
+    }
+
+    /* PDF 打印样式：导出完整简历，白底深字，隐藏交互元素 */
+    @media print {
+      @page { size: A4; margin: 12mm; }
+      html, body { height: auto !important; overflow: visible !important; background: #fff !important; }
+      .topnav, .nav-dots, .instruction, .scroll-hint, .next-btn, .back-btn, .bg-video { display: none !important; }
+      .pages { height: auto !important; transform: none !important; }
+      .page { position: static; height: auto !important; display: block; overflow: visible !important; }
+      .page::after { display: none !important; }
+      .overlay { width: 100% !important; max-width: 100% !important; max-height: none !important; padding: 0 !important; overflow: visible !important; color: #1a1a1a !important; }
+      .overlay, .overlay * { text-shadow: none !important; }
+      .scrollable { overflow: visible !important; height: auto !important; max-height: none !important; }
+      h1 { color: #0b2545 !important; -webkit-text-fill-color: #0b2545 !important; background: none !important; font-size: 28px !important; letter-spacing: 1px; }
+      .subtitle { color: #b45309 !important; font-size: 15px !important; }
+      .contact, .contact span { color: #374151 !important; font-size: 12px !important; }
+      .section-title { color: #1d4ed8 !important; border-bottom-color: #c7d2fe !important; }
+      .skills-grid { color: #1f2937 !important; }
+      .job-card { border-left-color: #1d4ed8 !important; }
+      .job-card h3 { color: #0b2545 !important; }
+      .job-card .date { color: #6b7280 !important; }
+      .job-card li, .awards { color: #374151 !important; }
+      .job-card li::before { color: #1d4ed8 !important; }
+      .cert-carousel { overflow: visible !important; cursor: default !important; }
+      .cert-track { flex-wrap: wrap !important; gap: 10px !important; transform: none !important; }
+      .cert-slide { width: 48% !important; }
+      .cert-slide img { max-height: 260px !important; border: 1px solid #c7d2fe !important; pointer-events: auto !important; }
+      .cert-name { color: #0b2545 !important; }
+      .cert-hint { display: none !important; }
+      #page2 h2 { color: #0b2545 !important; }
+      .project-title { color: #1f2937 !important; }
+      .project-num { background: #1d4ed8 !important; color: #fff !important; }
+      .page + .page { margin-top: 10mm; border-top: 1px solid #e5e7eb; padding-top: 6mm; }
+    }
+
+    @media (max-width: 640px) {
+      .overlay { padding: 22px 20px; }
+      .skills-grid { grid-template-columns: 1fr; }
+      h1 { font-size: 30px; }
+      .topnav { gap: 8px; padding: 0 12px; }
+      .topnav .brand { display: none; }
+      .topnav .menu a { padding: 6px 9px; font-size: 12px; }
+      .topnav .dl-btn { padding: 7px 11px; font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topnav">
+    <span class="brand">景宇飞 · 简历</span>
+    <nav class="menu" aria-label="简历导航">
+      <a onclick="scrollToSection('sec-skills')">专业技能</a>
+      <a onclick="scrollToSection('sec-edu')">教育经历</a>
+      <a onclick="scrollToSection('sec-work')">工作经历</a>
+    </nav>
+    <button class="dl-btn" onclick="exportPDF()" aria-label="下载 PDF 简历">⬇ 下载 PDF 简历</button>
+  </header>
+
+  <div class="pages" id="pages">
+    <!-- 第 1 页：首页 -->
+    <section class="page" id="page1">
+      <video class="bg-video" id="video1" muted loop playsinline preload="auto">
+        <source src="video1.mp4" type="video/mp4">
+      </video>
+      <div class="instruction">左右移动鼠标可控制人物视线</div>
+      <div class="overlay">
+        <div class="scrollable" id="homeScroll">
+          <h1>景宇飞</h1>
+          <div class="subtitle">求职意向：数据分析、策略运营</div>
+          <div class="contact">
+            <span>📞 15090821722</span>
+            <span>✉️ jingyufei@163.com</span>
+            <span>🌐 CET-6，可完成英文报告</span>
+          </div>
+
+          <div class="section" id="sec-skills">
+            <div class="section-title">专业技能</div>
+            <div class="skills-grid">
+              <div>指标体系搭建</div>
+              <div>量化测算</div>
+              <div>归因分析</div>
+              <div>业务诊断</div>
+              <div>用户 / 渠道 / 竞品分析</div>
+              <div>商业分析报告</div>
+              <div>分组计算</div>
+              <div>数据汇报</div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">工具技能</div>
+            <div class="skills-grid">
+              <div>Python（数据处理）</div>
+              <div>SQL（数据清洗 / 多表关联 / 窗口函数）</div>
+              <div>Tableau / PowerBI（可视化看板）</div>
+              <div>影刀 RPA</div>
+              <div>Microsoft 365（Excel 高级 / 数据透视表）</div>
+              <div>PowerQuery</div>
+              <div>飞书 / Xmind / Cursor / Workbuddy</div>
+            </div>
+          </div>
+
+          <div class="section" id="sec-edu">
+            <div class="section-title">教育经历</div>
+            <div class="job-card">
+              <h3>长安大学（211 高校，双一流学科）</h3>
+              <div class="date">2019 年 9 月 — 2022 年 6 月</div>
+              <ul>
+                <li>研究生期间参与发表 SCI 一区期刊 3 篇、会议论文 2 篇、发明专利 1 篇</li>
+                <li>获校奖学金 2 次、互联网 + 大赛银奖 2 次、创青春大赛银奖、优秀研究生、优秀毕业生</li>
+                <li>担任班级学习委员、研会新媒体运营专员、优秀志愿者</li>
+                <li>担任研会新媒体运营专员，负责运营“公路研会”公众号。每周产出两篇推文，负责学院活动海报制作、视频剪辑工作。</li>
+                <li>作为优秀志愿者，协助举办2021年度招生咨询会，作为主要负责人负责志愿者招募、填报咨询、直播辅助答疑工作。</li>
+              </ul>
+            </div>
+            <div class="job-card">
+              <h3>长江大学</h3>
+              <div class="date">2014 年 9 月 — 2018 年 6 月</div>
+              <ul>
+                <li>本科期间获国家奖学金、校奖学金 2 次、优秀共青团员 2 次、优秀共青团干部、三好学生 2 次、三好学生标兵、优秀毕业生</li>
+                <li>担任班级学习委员、获评优秀志愿者</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="section" id="sec-work">
+            <div class="section-title">工作经历</div>
+            <div class="job-card">
+              <h3>上海路明星光智能科技有限公司（电力AI服务）</h3>
+              <div class="date">2026年3月-至今</div>
+              <ul>
+                <li>数仓建设：负责多省份交易中心数据补录与爬取，完成核心省份多级数据建模（dim/dwd分层），构建标准化宽表支撑复盘看板；</li>
+                <li>指标体系：搭建电量曲线分类与用电价值预估所需指标字典，梳理数据血缘、字段映射与口径逻辑，沉淀可复用标准化数据资产；</li>
+                <li>项目复盘：按月推进江苏、山东、江西电量复盘与预测偏差分析，巡查平台数据异常并追溯根因，输出预警建议以支撑交易策略；</li>
+                <li>CRM搭建：推动岗位转型至商务部门，主导CRM选型与需求梳理（迭代至5.0版），完成比选并搭建产品原型与需求文档；</li>
+                <li>商机治理：建立多渠道商机统一接收与初筛机制，通过企查查完成客户背景与资质核查，累计对接数十条销售线索并沉淀信息；</li>
+                <li>竞对研判：基于竞对商机反馈结合区域市场动态完成竞争对手分析，输出竞争格局象限图与区域热力图，定位自身优劣势与机会；</li>
+              </ul>
+            </div>
+            <div class="job-card">
+              <h3>上海数糖科技有限公司（品牌咨询）</h3>
+              <div class="date">2025年7月-2026年2月</div>
+              <ul>
+                <li>经营分析：聚焦电商零售业务，梳理交易类业务对象边界与交互逻辑，串联各对象动作实现方式，搭建适配业务的数据处理流程；</li>
+                <li>业务拆解：围绕电商GMV增长目标，构建核心指标体系+业务增长公式，通过分组计算完成多维度指标统计，支撑日常报表输出；</li>
+                <li>诊断分析：围绕GMV、ROI、效率等关键指标，梳理业务动作，为客户提供增长诊断服务，定位增长瓶颈并输出商业分析报告30+份；</li>
+                <li>商机洞察：基于电商数据洞察平台及主流内容社交平台，分析检索频率、内容热度、播放互动数据发掘需求痛点，洞察新品商机；</li>
+                <li>用户分析：分析用户的年龄、性别、地域、消费能力，总结出用户画像，为产品研发和营销给活动提供精准方向；</li>
+                <li>市场分析：深入指数及研报网站广逻调研，洞察行业现状，梳理用户画像，考量行业增速，预计收益和市场需求，完成选品；</li>
+              </ul>
+            </div>
+            <div class="job-card">
+              <h3>综合交通规划研究院（国资委下属单位）</h3>
+              <div class="date">2022年7月-2025年6月</div>
+              <ul>
+                <li>数据预测：结合区域发展趋势建立数据分析模型，完成交通流量预测，为方案优化提供数据支撑，模型预测准确率达86.3%；</li>
+                <li>数据监控：日常监控全市物流运输核心指标、物流企业运营数据，通过同比、环比及省内对标及时发现异常波动，预警运营风险；</li>
+                <li>诊断分析：追踪业务核心指标，通过漏斗拆解、SQL筛查完成异动诊断，制定并落地调整策略，累计解决指标异常问题26起；</li>
+                <li>量化测算：按月度测算项目固投数据，研判增速趋势，通过板块调配、项目启动保障固投增速稳定，提前规避数据滞后风险；</li>
+                <li>分析报告：定期编制月度分析报告、专项调研报告，通过Excel数据透视表/分组计算完成多维度指标统计，累计输出报告48份；</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">获奖情况</div>
+            <div class="awards">
+              2014.09 长江大学一工部学习委员聘书 · 2015.05 优秀共青团员 · 2015.10 长江大学奖学金 · 2015.10 三好学生 · 2015.12 普通话二甲 · 2016.05 优秀共青团干部 · 2016.09 计算机二级（MS Office） · 2016.11 三好学生标兵 · 2016.11 国家奖学金 · 2017.05 优秀共青团员 · 2017.10 长江大学奖学金 · 2017.10 三好学生 · 2018.06 优秀毕业生 · 2018.09 优秀毕业设计 · 2019.10 长安大学二等学业奖学金 · 2020.05 创青春大赛银奖 · 2020.10 互联网 + 铜奖 · 2020.10 一等学业奖学金 · 2020.10 注册道路工程师基础考试合格 · 2021.10 互联网 + 银奖 · 2021.10 一等学业奖学金 · 2021.10 优秀研究生
+            </div>
+            <div class="cert-carousel" id="certCarousel">
+              <div class="cert-track" id="certTrack">
+                <div class="cert-slide">
+                  <img src="certs/00_国家奖学金_2015-2016.jpg" alt="国家奖学金证书 2015-2016" loading="lazy">
+                  <div class="cert-name">国家奖学金（2015—2016 学年）</div>
+                </div>
+                <div class="cert-slide">
+                  <img src="certs/14_宿迁市交通运输局工作鉴定.jpg" alt="宿迁市交通运输局工作鉴定" loading="lazy">
+                  <div class="cert-name">宿迁市交通运输局工作鉴定（2023—2024 借调）</div>
+                </div>
+                <div class="cert-slide">
+                  <img src="certs/17_长安大学互联网+校赛银奖_星能科技.jpg" alt="长安大学互联网+校赛银奖 星能科技" loading="lazy">
+                  <div class="cert-name">长安大学“互联网+”校赛银奖《星能科技》</div>
+                </div>
+                <div class="cert-slide">
+                  <img src="certs/15_长安大学优秀研究生_2019-2020.jpg" alt="长安大学优秀研究生 2019-2020" loading="lazy">
+                  <div class="cert-name">长安大学优秀研究生（2019—2020 学年）</div>
+                </div>
+                <div class="cert-slide">
+                  <img src="certs/19_长安大学优秀毕业生_2022届.jpg" alt="长安大学优秀毕业生 2022届" loading="lazy">
+                  <div class="cert-name">长安大学研究生优秀毕业生（2022 届）</div>
+                </div>
+                <div class="cert-slide">
+                  <img src="certs/03_长江大学三好学生标兵_2015-2016.jpg" alt="三好学生标兵 2015-2016" loading="lazy">
+                  <div class="cert-name">三好学生标兵（2015—2016 学年）</div>
+                </div>
+                <div class="cert-slide">
+                  <img src="certs/04_长江大学优秀共青团干部_2015.jpg" alt="优秀共青团干部 2015" loading="lazy">
+                  <div class="cert-name">优秀共青团干部（2015 年度）</div>
+                </div>
+              </div>
+              <div class="cert-hint">← 横向拖拽滑动查看更多证书 →</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="scroll-hint">向下滚动查看项目经历</div>
+      <button class="next-btn" onclick="goToPage(2)" aria-label="进入项目经历">项目经历 →</button>
+    </section>
+
+    <!-- 第 2 页：项目经历 -->
+    <section class="page" id="page2">
+      <video class="bg-video" id="video2" muted loop playsinline preload="auto">
+        <source src="video2.mp4" type="video/mp4">
+      </video>
+      <div class="instruction">左右移动鼠标控制画面；向下滚动浏览项目</div>
+      <button class="back-btn" onclick="goToPage(1)" aria-label="返回首页">← 返回首页</button>
+      <div class="overlay">
+        <h2>项目经历</h2>
+        <div class="scrollable project-list" id="projectScroll">
+          <div class="project-item"><span class="project-num">1</span><span class="project-title">商务部飞书 CRM 体系搭建 &amp; 销售流程诊断与经营效能提升</span></div>
+          <div class="project-item"><span class="project-num">2</span><span class="project-title">招投标项目台账看板搭建 &amp; 投标策略分析</span></div>
+          <div class="project-item"><span class="project-num">3</span><span class="project-title">商务 TaaS 业务分析报告及策略优化建议</span></div>
+          <div class="project-item"><span class="project-num">4</span><span class="project-title">月度 / 季度分析报告编制及岗位标准化流程建立</span></div>
+          <div class="project-item"><span class="project-num">5</span><span class="project-title">兴趣电商市场研究 &amp; 用户分析 &amp; 开品分析</span></div>
+          <div class="project-item"><span class="project-num">6</span><span class="project-title">电商经营数据 &amp; 达人管理监控与看板搭建</span></div>
+          <div class="project-item"><span class="project-num">7</span><span class="project-title">直播电商业务指标体系搭建 &amp; 策略设计</span></div>
+          <div class="project-item"><span class="project-num">8</span><span class="project-title">闲置单车调度增长提效策略运营</span></div>
+          <div class="project-item"><span class="project-num">9</span><span class="project-title">物流运输指标异动治理</span></div>
+          <div class="project-item"><span class="project-num">10</span><span class="project-title">本地生活门店数据监控 &amp; 经营分析</span></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <nav class="nav-dots" aria-label="页面导航">
+    <div class="nav-dot active" onclick="goToPage(1)" id="dot1"></div>
+    <div class="nav-dot" onclick="goToPage(2)" id="dot2"></div>
+  </nav>
+
+  <script>
+    (function () {
+      const pages = document.getElementById('pages');
+      const video1 = document.getElementById('video1');
+      const video2 = document.getElementById('video2');
+      const homeScroll = document.getElementById('homeScroll');
+      const projectScroll = document.getElementById('projectScroll');
+      const dot1 = document.getElementById('dot1');
+      const dot2 = document.getElementById('dot2');
+
+      let currentPage = 1;
+      const SENSITIVITY = 0.8;
+      const TIME_SCALE = 0.01; // 每像素移动对应 0.01 秒，再乘以灵敏度
+
+      function makeScrubber(video) {
+        let targetTime = 0;
+        let pendingTime = null;
+        let isSeeking = false;
+
+        video.addEventListener('loadedmetadata', function () {
+          targetTime = 0;
+          video.pause();
+          try { video.currentTime = 0; } catch (e) {}
+        });
+
+        video.addEventListener('seeked', function () {
+          isSeeking = false;
+          if (pendingTime !== null) {
+            var t = pendingTime;
+            pendingTime = null;
+            seekTo(t);
+          }
+        });
+
+        function seekTo(t) {
+          var dur = video.duration || 5;
+          while (t < 0) t += dur;
+          while (t >= dur) t -= dur;
+          if (isSeeking) {
+            pendingTime = t;
+            return;
+          }
+          isSeeking = true;
+          video.currentTime = t;
+        }
+
+        return {
+          scrub: function (deltaX) {
+            var dur = video.duration || 5;
+            targetTime += deltaX * SENSITIVITY * TIME_SCALE;
+            while (targetTime < 0) targetTime += dur;
+            while (targetTime >= dur) targetTime -= dur;
+            seekTo(targetTime);
+          }
+        };
+      }
+
+      const scrubber1 = makeScrubber(video1);
+      const scrubber2 = makeScrubber(video2);
+
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      }
+
+      window.goToPage = function (n) {
+        currentPage = n;
+        pages.style.transform = 'translateY(-' + ((n - 1) * 100) + 'vh)';
+        dot1.classList.toggle('active', n === 1);
+        dot2.classList.toggle('active', n === 2);
+      };
+
+      // 鼠标移动：横向相对距离控制视频时间轴
+      document.addEventListener('mousemove', function (e) {
+        var dx = e.movementX || 0;
+        if (Math.abs(dx) < 0.3) return;
+        if (currentPage === 1) {
+          scrubber1.scrub(dx);
+        } else if (currentPage === 2) {
+          scrubber2.scrub(dx);
+        }
+      });
+
+      // 滚轮逻辑：第 1 页滚动首页内容到底后进入第 2 页；第 2 页滚动项目内容，向下时播放视频
+      document.addEventListener('wheel', function (e) {
+        var delta = e.deltaY;
+        if (currentPage === 1) {
+          e.preventDefault();
+          var maxScroll = homeScroll.scrollHeight - homeScroll.clientHeight;
+          if (delta > 0 && homeScroll.scrollTop >= maxScroll - 1) {
+            goToPage(2);
+          } else {
+            homeScroll.scrollTop = clamp(homeScroll.scrollTop + delta, 0, maxScroll);
+          }
+        } else if (currentPage === 2) {
+          e.preventDefault();
+          if (delta < 0 && projectScroll.scrollTop <= 0) {
+            goToPage(1);
+          } else {
+            if (delta > 0 && video2.paused) {
+              video2.play().catch(function () {});
+            }
+            var maxScroll = projectScroll.scrollHeight - projectScroll.clientHeight;
+            projectScroll.scrollTop = clamp(projectScroll.scrollTop + delta, 0, maxScroll);
+          }
+        }
+      }, { passive: false });
+
+      // 禁止视频上的默认拖拽与点击行为干扰 scrub
+      [video1, video2].forEach(function (v) {
+        v.addEventListener('click', function (e) { e.preventDefault(); });
+      });
+
+      // 导航栏菜单：平滑滚动至对应区块（先确保位于首页）
+      function doScrollToSection(id) {
+        var target = document.getElementById(id);
+        if (!target) return;
+        var top = target.getBoundingClientRect().top
+                - homeScroll.getBoundingClientRect().top
+                + homeScroll.scrollTop;
+        homeScroll.scrollTo({ top: Math.max(0, top - 8), behavior: 'smooth' });
+      }
+
+      window.scrollToSection = function (id) {
+        if (currentPage !== 1) {
+          goToPage(1);
+          setTimeout(function () { doScrollToSection(id); }, 900);
+        } else {
+          doScrollToSection(id);
+        }
+      };
+
+      // 导出完整简历 PDF（使用浏览器原生打印，离线可用）
+      window.exportPDF = function () {
+        window.print();
+      };
+
+      // 获奖情况：横向可拖拽滑动的图片轮播（鼠标 / 触摸）
+      (function initCertCarousel() {
+        var carousel = document.getElementById('certCarousel');
+        var track = document.getElementById('certTrack');
+        if (!carousel || !track) return;
+
+        var startX = 0, startScroll = 0, isDown = false;
+
+        function onDown(x) {
+          isDown = true;
+          startX = x;
+          startScroll = carousel.scrollLeft;
+          carousel.classList.add('is-dragging');
+        }
+        function onMove(x) {
+          if (!isDown) return;
+          carousel.scrollLeft = startScroll - (x - startX);
+        }
+        function onUp() {
+          isDown = false;
+          carousel.classList.remove('is-dragging');
+        }
+
+        carousel.addEventListener('mousedown', function (e) {
+          if (e.button !== 0) return;
+          e.preventDefault();
+          onDown(e.clientX);
+        });
+        window.addEventListener('mousemove', function (e) {
+          if (isDown) onMove(e.clientX);
+        });
+        window.addEventListener('mouseup', onUp);
+
+        carousel.addEventListener('touchstart', function (e) {
+          if (!e.touches[0]) return;
+          onDown(e.touches[0].clientX);
+        }, { passive: true });
+        carousel.addEventListener('touchmove', function (e) {
+          if (!e.touches[0]) return;
+          onMove(e.touches[0].clientX);
+        }, { passive: true });
+        carousel.addEventListener('touchend', onUp);
+
+        // 鼠标滚轮在轮播区域内：水平滚动而非整页滚动
+        carousel.addEventListener('wheel', function (e) {
+          if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+            carousel.scrollLeft += e.deltaY;
+            e.stopPropagation();
+          }
+        }, { passive: true });
+      })();
+    })();
+  </script>
+</body>
+</html>
